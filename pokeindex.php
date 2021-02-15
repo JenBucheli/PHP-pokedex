@@ -1,13 +1,20 @@
 <?php
-
+if (isset($_GET['poke-id'])=== false){
+    $pokeID = 1;
+} else {
+    $pokeID= $_GET['poke-id'];
+}
 $base="http://pokeapi.co/api/v2/pokemon/";
-$pokeID=$_GET["poke-id"];
+//$pokeID=$_GET["poke-id"];
+
 
 //for($id=1;$id<3;$id++){
     $data=file_get_contents($base.$pokeID.'/');
     $pokemonData= json_decode($data);
-    $speciesURL=$pokemonData->species->url;
+
 //}
+
+
 
 ?>
 
@@ -53,7 +60,7 @@ $pokeID=$_GET["poke-id"];
 
         <div id="screen">
 
-             <img  src="<?php echo $pokemonData->sprites->other->dream_world->front_default?>" alt="pokemon">
+             <img  id= "mainPicture" src="<?php echo $pokemonData->sprites->other->dream_world->front_default?>" alt="pokemon">
         </div>
 
         <div id="resetButton"></div>
@@ -61,7 +68,9 @@ $pokeID=$_GET["poke-id"];
 
         <div id="cross">
             <div id="leftcross">
-                <div id="leftT"></div>
+                <div id="leftT">
+                   
+                </div>
             </div>
             <div id="topcross">
                 <div id="upT"></div>
@@ -88,34 +97,63 @@ $pokeID=$_GET["poke-id"];
                 <li><?php echo $pokemonData->moves[2]->move->name?></li>
                 <li><?php echo $pokemonData->moves[3]->move->name?></li>
                 <li><?php echo $pokemonData->moves[4]->move->name?></li>
-
             </ol>
 
         </div>
 
         <div id="Evolutions">
-            <div class="evo1">
-                <img id="evo1" src="<?php echo $pokemonData->evolutionChain?>" alt="pokemon,evolution">
-            </div>
-            <div class="evo2">
-                <img src="" alt="pokemon, evolution">
-            </div>
+<?php
 
+$speciesUrl = "https://pokeapi.co/api/v2/pokemon-species/";
+$speciesData = file_get_contents($speciesUrl.$pokeID.'/');
+$evolution = json_decode($speciesData);
+
+//to do when I have time
+//$chainURL = "https://pokeapi.co/api/v2/pokemon-species/evolution_chain/";
+//$chainData= file_get_contents($chainURL.$pokeID.'/');
+//$chainEvo= json_decode($chainData);
+
+
+if (isset($evolution->evolves_from_species->name) ){
+    echo $evolution->evolves_from_species->name;
+
+} else{
+    echo 'No Evolution';
+}
+?>
+<?php
+
+if (isset($evolution->evolves_from_species->name) ){
+    $avatar = $evolution->evolves_from_species->name;
+
+
+    $api = curl_init("https://pokeapi.co/api/v2/pokemon/$avatar");
+                    curl_setopt($api, CURLOPT_RETURNTRANSFER, true);
+                    $response = curl_exec($api);
+                    curl_close($api);
+
+                    $newPic = json_decode($response);
+
+
+                    echo '<img id="evo1" src="'.$newPic->sprites->other->dream_world->front_default.'" >';
+                //}
+            }
+            ?>
 
         </div>
 
         <div id="nameBox">
             <!-- adding the name of input to the box name -->
-            <h4>Name
+            <h4>NAME</h4>
                 <br>
-                <?php echo $pokemonData->name?></h4>
+                <?php echo $pokemonData->name?>
         </div>
 
         <div id="IDBox">
-            <h4>ID
+            <h4>ID</h4>
                 <br>
                 <?php echo $pokemonData->id?>
-            </h4>
+
         </div>
 
         <div id="bg_curve1_right"></div>
